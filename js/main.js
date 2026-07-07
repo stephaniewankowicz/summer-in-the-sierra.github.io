@@ -19,6 +19,47 @@ if (hamburger && mobileNav) {
   });
 })();
 
+// Formspree AJAX submission
+const contactForm = document.getElementById('contact-form');
+if (contactForm) {
+  contactForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submit-btn');
+    const errorBox = document.getElementById('form-error');
+    const successBox = document.getElementById('form-success');
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    errorBox.style.display = 'none';
+
+    try {
+      const res = await fetch(contactForm.action, {
+        method: 'POST',
+        body: new FormData(contactForm),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        contactForm.style.display = 'none';
+        successBox.style.display = 'block';
+      } else {
+        const data = await res.json();
+        const msg = (data.errors || []).map(e => e.message).join(', ') || 'Something went wrong. Please try again.';
+        errorBox.textContent = msg;
+        errorBox.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send Inquiry';
+      }
+    } catch (_) {
+      errorBox.textContent = 'Network error — please check your connection and try again.';
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Send Inquiry';
+    }
+  });
+}
+
 // FAQ accordion
 document.querySelectorAll('.faq-question').forEach(btn => {
   btn.addEventListener('click', () => {
